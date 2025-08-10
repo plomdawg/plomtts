@@ -1,0 +1,16 @@
+# Development dependencies
+
+# linting
+black
+isort
+mypy
+pylint
+
+# type stubs
+types-setuptools
+types-requests
+
+# testing
+pytest
+pytest-asyncio
+responses

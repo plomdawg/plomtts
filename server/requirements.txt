@@ -1,0 +1,15 @@
+# TTS server dependencies
+
+# FastAPI and web server
+fastapi
+uvicorn[standard]
+python-multipart
+
+# AI and TTS
+gradio-client
+
+# Audio processing
+pydub
+
+# Data validation
+pydantic
