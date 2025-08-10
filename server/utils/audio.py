@@ -10,7 +10,7 @@ def get_audio_duration(file_path: pathlib.Path) -> float:
     try:
         audio = AudioSegment.from_file(str(file_path))
         return len(audio) / 1000.0  # Convert from milliseconds to seconds
-    except Exception:
+    except (FileNotFoundError, OSError, ValueError):
         return 0.0
 
 
@@ -32,13 +32,15 @@ def validate_audio_file(file_path: pathlib.Path) -> bool:
 
 
 def convert_to_format(
-    input_path: pathlib.Path, output_path: pathlib.Path, format: str = "mp3"
+    input_path: pathlib.Path,
+    output_path: pathlib.Path,
+    audio_format: str = "mp3",
 ) -> bool:
     """Convert audio file to specified format."""
     try:
         audio = AudioSegment.from_file(str(input_path))
-        audio.export(str(output_path), format=format)
+        audio.export(str(output_path), format=audio_format)
         return True
-    except Exception as e:
+    except (FileNotFoundError, OSError, ValueError) as e:
         print(f"❌ Audio conversion failed: {e}")
         return False

@@ -24,9 +24,9 @@ __all__ = [
     "TTSNotFoundError",
     "TTSValidationError",
     "TTSServerError",
-    "VoiceResponse",
-    "VoiceListResponse",
     "TTSRequest",
     "TTSResponse",
     "HealthResponse",
+    "VoiceResponse",
+    "VoiceListResponse",
 ]

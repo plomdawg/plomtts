@@ -1,10 +1,9 @@
 """Voice management API endpoints."""
 
-from typing import List
-
-from core.voice_manager import VoiceManager
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
-from models.voice import VoiceListResponse, VoiceResponse
+
+from server.core.voice_manager import VoiceManager
+from shared.models import VoiceListResponse, VoiceResponse
 
 router = APIRouter(prefix="/voices", tags=["voices"])
 voice_manager = VoiceManager()
@@ -17,7 +16,9 @@ async def list_voices():
         voices = voice_manager.list_voices()
         return VoiceListResponse(voices=voices, total=len(voices))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to list voices: {e}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to list voices: {e}"
+        ) from e
 
 
 @router.get("/{voice_id}", response_model=VoiceResponse)
@@ -57,9 +58,11 @@ async def create_voice(
         return voice
 
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e)) from e
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to create voice: {e}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to create voice: {e}"
+        ) from e
 
 
 @router.delete("/{voice_id}")
@@ -72,9 +75,10 @@ async def delete_voice(voice_id: str):
         success = voice_manager.delete_voice(voice_id)
         if success:
             return {"message": f"Voice '{voice_id}' deleted successfully"}
-        else:
-            raise HTTPException(
-                status_code=500, detail=f"Failed to delete voice '{voice_id}'"
-            )
+        raise HTTPException(
+            status_code=500, detail=f"Failed to delete voice '{voice_id}'"
+        )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to delete voice: {e}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to delete voice: {e}"
+        ) from e

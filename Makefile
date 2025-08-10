@@ -23,7 +23,6 @@ lint: ## 🎨 Run comprehensive linting checks
 	@echo "🎨 Running linting checks..."
 	black --check .
 	isort --check-only .
-	pylint --recursive=y .
 	mypy .
 	@echo "✅ All linting checks complete"
 

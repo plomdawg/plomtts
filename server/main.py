@@ -1,11 +1,12 @@
 """Main FastAPI application for plomtts."""
 
-from api import tts, voices
-from core.config import settings
-from core.fish_client import FishSpeechClient
-from core.voice_manager import VoiceManager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
+from server.api import tts, voices
+from server.core.config import settings
+from server.core.fish_client import FishSpeechClient
+from server.core.voice_manager import VoiceManager
 
 # Create FastAPI app
 app = FastAPI(
@@ -62,15 +63,15 @@ async def startup_event():
     settings.VOICES_DIR.mkdir(parents=True, exist_ok=True)
 
     # Log available voices
-    voices = voice_manager.list_voices()
-    print(f"🎵 Found {len(voices)} voices: {[v.name for v in voices]}")
+    all_voices = voice_manager.list_voices()
+    print(f"🎵 Found {len(all_voices)} voices: {[v.name for v in all_voices]}")
 
 
 if __name__ == "__main__":
     import uvicorn
 
     uvicorn.run(
-        "plomtts.main:app",
+        "server.main:app",
         host=settings.HOST,
         port=settings.PORT,
         reload=True,

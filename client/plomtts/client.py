@@ -1,6 +1,5 @@
 """PlomTTS Python Client."""
 
-import io
 from pathlib import Path
 from typing import BinaryIO, Optional, Union
 from urllib.parse import urljoin
@@ -16,9 +15,7 @@ from .exceptions import (
     TTSValidationError,
 )
 from .models import (
-    HealthResponse,
     TTSRequest,
-    TTSResponse,
     VoiceListResponse,
     VoiceResponse,
 )
@@ -64,11 +61,11 @@ class TTSClient:
                 raise TTSNotFoundError(
                     f"Resource not found: {response.text}", status_code=404
                 )
-            elif response.status_code == 400:
+            if response.status_code == 400:
                 raise TTSValidationError(
                     f"Validation error: {response.text}", status_code=400
                 )
-            elif 500 <= response.status_code < 600:
+            if 500 <= response.status_code < 600:
                 raise TTSServerError(
                     f"Server error: {response.text}", status_code=response.status_code
                 )
@@ -77,11 +74,11 @@ class TTSClient:
             return response
 
         except requests.exceptions.ConnectionError as e:
-            raise TTSConnectionError(f"Failed to connect to server: {e}")
+            raise TTSConnectionError(f"Failed to connect to server: {e}") from e
         except requests.exceptions.Timeout as e:
-            raise TTSConnectionError(f"Request timeout: {e}")
+            raise TTSConnectionError(f"Request timeout: {e}") from e
         except requests.exceptions.RequestException as e:
-            raise TTSError(f"Request failed: {e}")
+            raise TTSError(f"Request failed: {e}") from e
 
     def health(self) -> dict:
         """Check server health status."""
@@ -94,7 +91,7 @@ class TTSClient:
         try:
             return VoiceListResponse(**response.json())
         except ValidationError as e:
-            raise TTSValidationError(f"Invalid response format: {e}")
+            raise TTSValidationError(f"Invalid response format: {e}") from e
 
     def get_voice(self, voice_id: str) -> VoiceResponse:
         """Get details of a specific voice."""
@@ -102,7 +99,7 @@ class TTSClient:
         try:
             return VoiceResponse(**response.json())
         except ValidationError as e:
-            raise TTSValidationError(f"Invalid response format: {e}")
+            raise TTSValidationError(f"Invalid response format: {e}") from e
 
     def create_voice(
         self,
@@ -153,7 +150,7 @@ class TTSClient:
         try:
             return VoiceResponse(**response.json())
         except ValidationError as e:
-            raise TTSValidationError(f"Invalid response format: {e}")
+            raise TTSValidationError(f"Invalid response format: {e}") from e
 
     def delete_voice(self, voice_id: str) -> dict:
         """Delete a voice."""
@@ -170,7 +167,7 @@ class TTSClient:
         repetition_penalty: float = 1.2,
         temperature: float = 0.7,
         seed: int = 0,
-    ) -> bytes:
+    ) -> bytes:  # pylint: disable=too-many-arguments
         """Generate speech and return audio data.
 
         Args:
@@ -199,7 +196,7 @@ class TTSClient:
                 seed=seed,
             )
         except ValidationError as e:
-            raise TTSValidationError(f"Invalid request parameters: {e}")
+            raise TTSValidationError(f"Invalid request parameters: {e}") from e
 
         response = self._make_request(
             "POST",

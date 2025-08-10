@@ -5,13 +5,6 @@ from typing import Optional
 from pydantic import BaseModel, Field
 
 
-class VoiceCreate(BaseModel):
-    """Request model for creating a voice."""
-
-    name: str = Field(..., description="Name of the voice", min_length=1, max_length=50)
-    transcript: Optional[str] = Field(None, description="Optional transcript text")
-
-
 class VoiceResponse(BaseModel):
     """Response model for voice information."""
 

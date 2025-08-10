@@ -3,7 +3,7 @@
 import io
 import json
 from pathlib import Path
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 import pytest
 import responses
@@ -12,9 +12,7 @@ from requests.exceptions import ConnectionError, Timeout
 from plomtts import (
     TTSClient,
     TTSConnectionError,
-    TTSError,
     TTSNotFoundError,
-    TTSResponse,
     TTSServerError,
     TTSValidationError,
     VoiceListResponse,

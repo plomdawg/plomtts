@@ -1,9 +1,5 @@
 """Test runner script with server integration tests."""
 
-import os
-import subprocess
-import tempfile
-import time
 from pathlib import Path
 
 import pytest
@@ -79,13 +75,12 @@ def test_with_live_server():
             # Try to clean up anyway
             try:
                 client.delete_voice("test_client_voice")
-            except:
+            except Exception:
                 pass
-            raise
 
         print("🎉 All live server tests passed!")
 
-    except Exception as e:
+    except (ConnectionError, TimeoutError, ValueError) as e:
         print(f"❌ Live server test failed: {e}")
         print("💡 Make sure PlomTTS server is running on http://localhost:8420")
         pytest.fail(f"Live server test failed: {e}")

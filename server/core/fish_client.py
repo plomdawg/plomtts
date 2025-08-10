@@ -2,11 +2,11 @@
 
 import pathlib
 import shutil
-from typing import Optional
 
-from core.config import settings
 from gradio_client import Client, handle_file
-from utils.audio import convert_to_format
+
+from server.core.config import settings
+from server.utils.audio import convert_to_format
 
 
 class FishSpeechClient:
@@ -20,7 +20,7 @@ class FishSpeechClient:
     def _get_reference_audio(
         self, voice_dir: pathlib.Path, voice_name: str
     ) -> pathlib.Path:
-        """Get the reference audio file for the voice (prefers WAV for Fish-speech, auto-converts if needed)."""
+        """Get reference audio file for voice (prefers WAV, auto-converts if needed)."""
         # First, try to find WAV file (preferred for Fish-speech)
         wav_file = voice_dir / f"{voice_name}.wav"
         if wav_file.exists():
@@ -37,11 +37,10 @@ class FishSpeechClient:
                 if convert_to_format(source_file, wav_file, "wav"):
                     print(f"✅ Created WAV version: {wav_file}")
                     return wav_file
-                else:
-                    print(
-                        f"⚠️  Warning: WAV conversion failed, using {ext.upper()} directly"
-                    )
-                    return source_file
+                print(
+                    f"⚠️  Warning: WAV conversion failed, using {ext.upper()} directly"
+                )
+                return source_file
 
         raise FileNotFoundError(
             f"❌ Reference audio file not found for voice: {voice_name}"
@@ -67,7 +66,9 @@ class FishSpeechClient:
         try:
             client = Client(self.api_endpoint)
         except Exception as e:
-            raise RuntimeError(f"❌ Failed to connect to fish-speech service: {e}")
+            raise RuntimeError(
+                f"❌ Failed to connect to fish-speech service: {e}"
+            ) from e
 
         # Extract parameters with defaults
         max_new_tokens = kwargs.get("max_new_tokens", 0)
@@ -95,7 +96,7 @@ class FishSpeechClient:
                 api_name="/partial",
             )
         except Exception as e:
-            raise RuntimeError(f"❌ Fish-speech API call failed: {e}")
+            raise RuntimeError(f"❌ Fish-speech API call failed: {e}") from e
 
         # Check for errors
         if error_message:
@@ -131,6 +132,6 @@ class FishSpeechClient:
             client = Client(self.api_endpoint)
             # Simple test to see if we can connect
             return True
-        except Exception as e:
+        except (ConnectionError, OSError, ValueError) as e:
             print(f"❌ Fish-speech health check failed: {e}")
             return False

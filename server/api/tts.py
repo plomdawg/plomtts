@@ -2,14 +2,14 @@
 
 import pathlib
 import tempfile
-from typing import Optional
 
-from core.fish_client import FishSpeechClient
-from core.voice_manager import VoiceManager
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse
-from models.tts import TTSRequest, TTSResponse
-from utils.audio import get_audio_duration, get_audio_format
+
+from server.core.fish_client import FishSpeechClient
+from server.core.voice_manager import VoiceManager
+from server.utils.audio import get_audio_duration
+from shared.models import TTSRequest
 
 router = APIRouter(prefix="/tts", tags=["tts"])
 fish_client = FishSpeechClient()
@@ -65,4 +65,6 @@ async def generate_speech(request: TTSRequest):
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"TTS generation failed: {e}")
+        raise HTTPException(
+            status_code=500, detail=f"TTS generation failed: {e}"
+        ) from e

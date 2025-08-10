@@ -5,9 +5,9 @@ import shutil
 from datetime import datetime
 from typing import List, Optional
 
-from core.config import settings
-from models.voice import VoiceResponse
-from utils.audio import convert_to_format, get_audio_format, validate_audio_file
+from server.core.config import settings
+from server.utils.audio import convert_to_format, get_audio_format, validate_audio_file
+from shared.models import VoiceResponse
 
 
 class VoiceManager:
@@ -47,7 +47,7 @@ class VoiceManager:
                 created_at = datetime.fromtimestamp(
                     voice_dir.stat().st_ctime
                 ).isoformat()
-            except Exception:
+            except (OSError, ValueError):
                 created_at = None
 
             voice = VoiceResponse(
@@ -156,7 +156,7 @@ class VoiceManager:
             shutil.rmtree(voice_dir)
             print(f"🗑️  Deleted voice '{voice_id}'")
             return True
-        except Exception as e:
+        except (OSError, PermissionError) as e:
             print(f"❌ Failed to delete voice '{voice_id}': {e}")
             return False
 
