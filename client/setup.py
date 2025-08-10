@@ -4,7 +4,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="plomtts-client",
-    version="0.1.0",
+    version="1.0.0",
     author="Avalon Parton",
     author_email="avalonlee@gmail.com",
     description="Python client for PlomTTS AI Text-to-Speech server",
