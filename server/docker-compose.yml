@@ -1,0 +1,39 @@
+services:
+  fish-speech:
+    image: fishaudio/fish-speech:v1.5.1
+    ports:
+      - "7860:7860"
+    environment:
+      - GRADIO_SHOW_ERROR=true
+      - GRADIO_SERVER_NAME=0.0.0.0
+      - GRADIO_ALLOW_FLAGGING=never
+    deploy:
+      resources:
+        reservations:
+          devices: 
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    volumes:
+      - ./checkpoints:/opt/fish-speech/checkpoints
+    restart: unless-stopped
+
+  plomtts:
+    build: .
+    ports:
+      - "8420:8420"
+    environment:
+      - PLOMTTS_HOST=0.0.0.0
+      - PLOMTTS_PORT=8420
+      - FISH_SPEECH_HOST=fish-speech
+      - FISH_SPEECH_PORT=7860
+      - PLOMTTS_VOICES_DIR=/app/voices
+    volumes:
+      - ./voices:/app/voices
+    depends_on:
+      - fish-speech
+    restart: unless-stopped
+
+volumes:
+  voices:
+  checkpoints:
