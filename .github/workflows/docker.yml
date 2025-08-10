@@ -64,11 +64,12 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: 🏗️ Build and push Docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
+        id: build
         with:
           context: ./server
           platforms: linux/amd64,linux/arm64
-          push: ${{ github.event_name != 'pull_request' || inputs.force_push }}
+          push: ${{ (github.event_name != 'pull_request' || inputs.force_push) && 'true' || 'false' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
