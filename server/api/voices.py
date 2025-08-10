@@ -3,7 +3,7 @@
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 
 from server.core.voice_manager import VoiceManager
-from shared.models import VoiceListResponse, VoiceResponse
+from server.models.voice import VoiceListResponse, VoiceResponse
 
 router = APIRouter(prefix="/voices", tags=["voices"])
 voice_manager = VoiceManager()

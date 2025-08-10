@@ -14,11 +14,11 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code directly to /app
-COPY api/ ./api/
-COPY core/ ./core/
-COPY models/ ./models/
-COPY utils/ ./utils/
-COPY main.py .
+COPY api/ ./server/api/
+COPY core/ ./server/core/
+COPY models/ ./server/models/
+COPY utils/ ./server/utils/
+COPY main.py ./server/
 
 # Create directories for voices and models
 RUN mkdir -p /app/voices
@@ -32,4 +32,4 @@ ENV PLOMTTS_PORT=8420
 ENV PLOMTTS_VOICES_DIR=/app/voices
 
 # Run the application
-CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8420"]
+CMD ["python", "-m", "uvicorn", "server.main:app", "--host", "0.0.0.0", "--port", "8420"]

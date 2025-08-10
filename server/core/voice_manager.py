@@ -7,7 +7,7 @@ from typing import List, Optional
 
 from server.core.config import settings
 from server.utils.audio import convert_to_format, get_audio_format, validate_audio_file
-from shared.models import VoiceResponse
+from server.models.voice import VoiceResponse
 
 
 class VoiceManager:
