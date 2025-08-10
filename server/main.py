@@ -1,12 +1,11 @@
 """Main FastAPI application for plomtts."""
 
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-
 from api import tts, voices
 from core.config import settings
 from core.fish_client import FishSpeechClient
 from core.voice_manager import VoiceManager
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 # Create FastAPI app
 app = FastAPI(

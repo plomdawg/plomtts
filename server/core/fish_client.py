@@ -4,9 +4,8 @@ import pathlib
 import shutil
 from typing import Optional
 
-from gradio_client import Client, handle_file
-
 from core.config import settings
+from gradio_client import Client, handle_file
 from utils.audio import convert_to_format
 
 

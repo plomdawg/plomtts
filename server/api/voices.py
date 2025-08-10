@@ -2,9 +2,8 @@
 
 from typing import List
 
-from fastapi import APIRouter, File, Form, HTTPException, UploadFile
-
 from core.voice_manager import VoiceManager
+from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from models.voice import VoiceListResponse, VoiceResponse
 
 router = APIRouter(prefix="/voices", tags=["voices"])
