@@ -1,0 +1,3 @@
+# TTS client dependencies
+requests
+pydantic

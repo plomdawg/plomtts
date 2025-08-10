@@ -1,0 +1,11 @@
+# Development dependencies
+
+# linting
+black
+isort
+mypy
+pylint
+
+# testing
+pytest
+pytest-asyncio

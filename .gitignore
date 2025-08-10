@@ -19,7 +19,6 @@ coverage.xml
 # Application specific
 voices/
 checkpoints/
-*.txt
 *.mp3
 *.wav
 *.flac
