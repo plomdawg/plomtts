@@ -1,10 +1,12 @@
 """Custom exceptions for TTS client."""
 
+from typing import Optional
+
 
 class TTSError(Exception):
     """Base exception for TTS client errors."""
 
-    def __init__(self, message: str, status_code: int = None):
+    def __init__(self, message: str, status_code: Optional[int] = None):
         super().__init__(message)
         self.message = message
         self.status_code = status_code

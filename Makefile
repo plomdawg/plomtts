@@ -10,7 +10,7 @@ install: ## 📦 Install dependencies (server and client)
 	pip install -r client/requirements.txt
 	pip install -r server/requirements.txt
 
-install-dev: install ## 🔧 Install dev tools (linter, testing)
+install-dev: install ## 🔧 Install dev tools (linter, testing, type stubs)
 	pip install -r requirements-dev.txt
 
 format: ## ✨ Format code with black and isort

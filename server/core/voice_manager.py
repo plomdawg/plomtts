@@ -162,4 +162,4 @@ class VoiceManager:
 
     def voice_exists(self, voice_id: str) -> bool:
         """Check if a voice exists."""
-        return (self.voices_dir / voice_id).is_dir()
+        return bool((self.voices_dir / voice_id).is_dir())

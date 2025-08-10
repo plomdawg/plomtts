@@ -1,7 +1,7 @@
 """PlomTTS Python Client."""
 
 from pathlib import Path
-from typing import BinaryIO, Optional, Union
+from typing import Any, BinaryIO, Optional, Union
 from urllib.parse import urljoin
 
 import requests
@@ -80,10 +80,10 @@ class TTSClient:
         except requests.exceptions.RequestException as e:
             raise TTSError(f"Request failed: {e}") from e
 
-    def health(self) -> dict:
+    def health(self) -> dict[str, Any]:
         """Check server health status."""
         response = self._make_request("GET", "/health")
-        return response.json()
+        return dict(response.json())
 
     def list_voices(self) -> VoiceListResponse:
         """List all available voices."""
@@ -104,7 +104,7 @@ class TTSClient:
     def create_voice(
         self,
         name: str,
-        audio: Union[str, Path, BinaryIO],
+        audio: Union[str, Path, BinaryIO, bytes],
         transcript: Optional[str] = None,
         audio_filename: Optional[str] = None,
     ) -> VoiceResponse:
@@ -112,9 +112,9 @@ class TTSClient:
 
         Args:
             name: Voice name/identifier
-            audio: Audio file path, Path object, or file-like object
+            audio: Audio file path, Path object, file-like object, or bytes
             transcript: Optional transcript text
-            audio_filename: Filename for audio (required if audio is BinaryIO)
+            audio_filename: Filename for audio (required if audio is BinaryIO or bytes)
         """
         # Handle different audio input types
         if isinstance(audio, (str, Path)):
@@ -126,17 +126,19 @@ class TTSClient:
                 audio_data = f.read()
             filename = audio_filename or audio_path.name
         else:
-            # Assume it's a file-like object
+            # Handle file-like object or bytes
             if hasattr(audio, "read"):
+                # It's a file-like object
                 audio_data = audio.read()
                 if hasattr(audio, "seek"):
                     audio.seek(0)  # Reset position for potential reuse
             else:
+                # It's bytes
                 audio_data = audio
 
             if not audio_filename:
                 raise TTSValidationError(
-                    "audio_filename is required when audio is a file-like object"
+                    "audio_filename is required when audio is a file-like object or bytes"
                 )
             filename = audio_filename
 
@@ -152,10 +154,10 @@ class TTSClient:
         except ValidationError as e:
             raise TTSValidationError(f"Invalid response format: {e}") from e
 
-    def delete_voice(self, voice_id: str) -> dict:
+    def delete_voice(self, voice_id: str) -> dict[str, Any]:
         """Delete a voice."""
         response = self._make_request("DELETE", f"/voices/{voice_id}")
-        return response.json()
+        return dict(response.json())
 
     def generate_speech(
         self,
