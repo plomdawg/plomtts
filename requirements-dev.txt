@@ -13,3 +13,4 @@ types-requests
 # testing
 pytest
 pytest-asyncio
+responses
