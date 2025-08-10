@@ -8,8 +8,8 @@ from fastapi.responses import FileResponse
 
 from server.core.fish_client import FishSpeechClient
 from server.core.voice_manager import VoiceManager
-from server.utils.audio import get_audio_duration
 from server.models.tts import TTSRequest
+from server.utils.audio import get_audio_duration
 
 router = APIRouter(prefix="/tts", tags=["tts"])
 fish_client = FishSpeechClient()
