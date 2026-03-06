@@ -9,7 +9,7 @@ from fastapi.responses import FileResponse
 from server.core.fish_client import FishSpeechClient
 from server.core.voice_manager import VoiceManager
 from server.models.tts import TTSRequest
-from server.utils.audio import convert_to_format, get_audio_duration
+from server.utils.audio import get_audio_duration
 
 router = APIRouter(prefix="/tts", tags=["tts"])
 fish_client = FishSpeechClient()
@@ -31,27 +31,18 @@ async def generate_speech(request: TTSRequest):
             output_path = pathlib.Path(temp_file.name)
 
         try:
-            # Generate raw audio with fish-speech into a temp file
-            with tempfile.NamedTemporaryFile(suffix=".audio", delete=False) as raw_file:
-                raw_path = pathlib.Path(raw_file.name)
-            try:
-                fish_client.generate_audio_to_file(
-                    text=request.text,
-                    voice_id=request.voice_id,
-                    output_path=raw_path,
-                    max_new_tokens=request.max_new_tokens,
-                    chunk_length=request.chunk_length,
-                    top_p=request.top_p,
-                    repetition_penalty=request.repetition_penalty,
-                    temperature=request.temperature,
-                    seed=request.seed,
-                )
-                # Convert raw fish-speech output (WAV) to actual MP3
-                if not convert_to_format(raw_path, output_path, "mp3"):
-                    raise RuntimeError("Audio conversion to MP3 failed")
-            finally:
-                if raw_path.exists():
-                    raw_path.unlink()
+            # Generate audio with fish-speech
+            fish_client.generate_audio_to_file(
+                text=request.text,
+                voice_id=request.voice_id,
+                output_path=output_path,
+                max_new_tokens=request.max_new_tokens,
+                chunk_length=request.chunk_length,
+                top_p=request.top_p,
+                repetition_penalty=request.repetition_penalty,
+                temperature=request.temperature,
+                seed=request.seed,
+            )
 
             # Return the audio file
             return FileResponse(
