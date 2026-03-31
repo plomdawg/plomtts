@@ -22,6 +22,7 @@ class VoiceResponse(BaseModel):
 
     audio_format: str = Field(..., description="Audio file format (mp3, wav, etc.)")
     created_at: Optional[str] = Field(None, description="Creation timestamp")
+    avatar_url: Optional[str] = Field(None, description="Avatar image URL")
 
 
 class VoiceListResponse(BaseModel):

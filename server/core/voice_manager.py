@@ -50,12 +50,19 @@ class VoiceManager:
             except (OSError, ValueError):
                 created_at = None
 
+            # Check for avatar URL
+            avatar_url = None
+            avatar_file = voice_dir / "avatar.txt"
+            if avatar_file.exists():
+                avatar_url = avatar_file.read_text().strip() or None
+
             voice = VoiceResponse(
                 id=voice_dir.name,
                 name=voice_dir.name,
                 has_transcript=has_transcript,
                 audio_format=get_audio_format(audio_file),
                 created_at=created_at,
+                avatar_url=avatar_url,
             )
             voices.append(voice)
 
