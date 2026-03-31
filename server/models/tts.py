@@ -9,7 +9,7 @@ class TTSRequest(BaseModel):
     """Request model for TTS generation."""
 
     text: str = Field(
-        ..., description="Text to convert to speech", min_length=1, max_length=1000
+        ..., description="Text to convert to speech", min_length=1, max_length=2500
     )
     voice_id: str = Field(..., description="Voice ID to use for generation")
 
