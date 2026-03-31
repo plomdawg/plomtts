@@ -50,11 +50,12 @@ class VoiceManager:
             except (OSError, ValueError):
                 created_at = None
 
-            # Check for avatar URL
+            # Check for local avatar image
             avatar_url = None
-            avatar_file = voice_dir / "avatar.txt"
-            if avatar_file.exists():
-                avatar_url = avatar_file.read_text().strip() or None
+            for ext in ("png", "jpg", "jpeg"):
+                if (voice_dir / f"{voice_dir.name}.{ext}").exists():
+                    avatar_url = f"/voices/{voice_dir.name}/avatar"
+                    break
 
             voice = VoiceResponse(
                 id=voice_dir.name,

@@ -1,7 +1,9 @@
 """Voice management API endpoints."""
 
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
+from fastapi.responses import FileResponse
 
+from server.core.config import settings
 from server.core.voice_manager import VoiceManager
 from server.models.voice import VoiceListResponse, VoiceResponse
 
@@ -19,6 +21,19 @@ async def list_voices():
         raise HTTPException(
             status_code=500, detail=f"Failed to list voices: {e}"
         ) from e
+
+
+@router.get("/{voice_id}/avatar")
+async def get_voice_avatar(voice_id: str):
+    """Serve the local avatar image for a voice."""
+    voice_dir = settings.VOICES_DIR / voice_id
+    if not voice_dir.is_dir():
+        raise HTTPException(status_code=404, detail=f"Voice '{voice_id}' not found")
+    for ext in ("png", "jpg", "jpeg"):
+        img = voice_dir / f"{voice_id}.{ext}"
+        if img.exists():
+            return FileResponse(img)
+    raise HTTPException(status_code=404, detail=f"No avatar image for '{voice_id}'")
 
 
 @router.get("/{voice_id}", response_model=VoiceResponse)
