@@ -15,6 +15,7 @@ from .exceptions import (
     TTSValidationError,
 )
 from .models import (
+    MultiTTSRequest,
     TTSRequest,
     VoiceListResponse,
     VoiceResponse,
@@ -203,6 +204,54 @@ class TTSClient:
         response = self._make_request(
             "POST",
             "/tts",
+            json=request_data.model_dump(),
+            headers={"Content-Type": "application/json"},
+        )
+
+        return response.content
+
+    def generate_dialogue(
+        self,
+        turns: list,
+        max_new_tokens: int = 0,
+        chunk_length: int = 200,
+        top_p: float = 0.7,
+        repetition_penalty: float = 1.2,
+        temperature: float = 0.7,
+        seed: int = 0,
+    ) -> bytes:  # pylint: disable=too-many-arguments
+        """Generate a multi-speaker dialogue and return audio data.
+
+        Args:
+            turns: Ordered list of turns, each a dict {"voice_id": str, "text": str}
+                or a (voice_id, text) tuple. Each unique voice maps to one Fish Audio
+                S2 speaker; the whole dialogue is generated in a single call.
+            max_new_tokens, chunk_length, top_p, repetition_penalty, temperature, seed:
+                Shared sampling parameters.
+
+        Returns:
+            Audio data as bytes (mp3).
+        """
+        normalized = [
+            {"voice_id": t[0], "text": t[1]} if isinstance(t, (tuple, list)) else t
+            for t in turns
+        ]
+        try:
+            request_data = MultiTTSRequest(
+                turns=normalized,
+                max_new_tokens=max_new_tokens,
+                chunk_length=chunk_length,
+                top_p=top_p,
+                repetition_penalty=repetition_penalty,
+                temperature=temperature,
+                seed=seed,
+            )
+        except ValidationError as e:
+            raise TTSValidationError(f"Invalid request parameters: {e}") from e
+
+        response = self._make_request(
+            "POST",
+            "/tts/multi",
             json=request_data.model_dump(),
             headers={"Content-Type": "application/json"},
         )

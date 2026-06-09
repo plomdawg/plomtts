@@ -9,7 +9,9 @@ from .exceptions import (
     TTSValidationError,
 )
 from .models import (
+    DialogueTurn,
     HealthResponse,
+    MultiTTSRequest,
     TTSRequest,
     TTSResponse,
     VoiceListResponse,
@@ -26,6 +28,8 @@ __all__ = [
     "TTSServerError",
     "TTSRequest",
     "TTSResponse",
+    "DialogueTurn",
+    "MultiTTSRequest",
     "HealthResponse",
     "VoiceResponse",
     "VoiceListResponse",

@@ -92,10 +92,8 @@ class FishSpeechClient:
         finally:
             trimmed.unlink(missing_ok=True)
 
-    def generate_audio_to_file(
-        self, text: str, voice_id: str, output_path: pathlib.Path, **kwargs
-    ) -> pathlib.Path:
-        """Generate speech and write it (mp3) to output_path."""
+    def _voice_reference(self, voice_id: str) -> dict:
+        """Build an S2 reference ({audio, text}) for one voice."""
         voice_dir = settings.VOICES_DIR / voice_id
         if not voice_dir.exists():
             raise ValueError(f"❌ Voice not found: {voice_id}")
@@ -105,10 +103,16 @@ class FishSpeechClient:
         reference_transcript = voice_dir / f"{voice_id}.txt"
         if not reference_transcript.exists():
             raise FileNotFoundError(f"❌ Transcript not found for voice: {voice_id}")
-        transcript_text = reference_transcript.read_text().strip()
 
-        audio_bytes = self._reference_bytes(reference_audio)
+        return {
+            "audio": self._reference_bytes(reference_audio),
+            "text": reference_transcript.read_text().strip(),
+        }
 
+    def _post_tts(
+        self, text: str, references: list, output_path: pathlib.Path, **kwargs
+    ) -> pathlib.Path:
+        """POST a ServeTTSRequest to S2 /v1/tts and write the mp3 to output_path."""
         # Map plomtts params onto S2's ServeTTSRequest, clamping to its valid ranges.
         max_new_tokens = kwargs.get("max_new_tokens", 0)
         if max_new_tokens <= 0:
@@ -117,7 +121,7 @@ class FishSpeechClient:
 
         payload = {
             "text": text,
-            "references": [{"audio": audio_bytes, "text": transcript_text}],
+            "references": references,
             "format": "mp3",
             "chunk_length": int(_clamp(kwargs.get("chunk_length", 200), 100, 300)),
             "max_new_tokens": max_new_tokens,
@@ -132,7 +136,7 @@ class FishSpeechClient:
             "streaming": False,
         }
 
-        print(f"🎵 Generating audio for: {text[:50]}...")
+        print(f"🎵 Generating audio for: {text[:60]}...")
         data = msgpack.packb(payload, use_bin_type=True)
         request = urllib.request.Request(
             f"{self.api_endpoint}/v1/tts",
@@ -141,7 +145,9 @@ class FishSpeechClient:
             method="POST",
         )
         try:
-            with urllib.request.urlopen(request, timeout=180) as response:
+            # 300s: a long dialogue (or the first multi-speaker call, which triggers a
+            # torch.compile recompile for the new tensor shape) can take ~45s+.
+            with urllib.request.urlopen(request, timeout=300) as response:
                 output_path.write_bytes(response.read())
         except urllib.error.HTTPError as e:
             detail = e.read().decode(errors="replace")
@@ -156,6 +162,35 @@ class FishSpeechClient:
 
         print(f"📁 Saved generated audio to {output_path}")
         return output_path
+
+    def generate_audio_to_file(
+        self, text: str, voice_id: str, output_path: pathlib.Path, **kwargs
+    ) -> pathlib.Path:
+        """Generate single-voice speech and write it (mp3) to output_path."""
+        reference = self._voice_reference(voice_id)
+        return self._post_tts(text, [reference], output_path, **kwargs)
+
+    def generate_dialogue_to_file(
+        self, turns: list, output_path: pathlib.Path, **kwargs
+    ) -> pathlib.Path:
+        """Generate a multi-speaker dialogue and write it (mp3) to output_path.
+
+        `turns` is a list of (voice_id, text) pairs. Each unique voice becomes one S2
+        reference; its position is the `<|speaker:N|>` id used to tag that voice's lines,
+        so the whole conversation is generated in a single context-aware call.
+        """
+        references: list = []
+        speaker_index: dict = {}
+        for voice_id, _ in turns:
+            if voice_id not in speaker_index:
+                speaker_index[voice_id] = len(references)
+                references.append(self._voice_reference(voice_id))
+
+        text = "".join(
+            f"<|speaker:{speaker_index[voice_id]}|>{line.strip()}"
+            for voice_id, line in turns
+        )
+        return self._post_tts(text, references, output_path, **kwargs)
 
     def generate_audio(self, text: str, voice_id: str, **kwargs) -> pathlib.Path:
         """Generate audio and return a path to a temp mp3 (compatibility wrapper)."""

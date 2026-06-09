@@ -44,6 +44,34 @@ class TTSRequest(BaseModel):
     seed: int = Field(0, description="Random seed (0 for random)")
 
 
+class DialogueTurn(BaseModel):
+    """One turn in a multi-speaker dialogue."""
+
+    voice_id: str = Field(..., description="Voice ID for this turn")
+    text: str = Field(
+        ..., description="Text for this turn (may include [emotion] tags)",
+        min_length=1, max_length=2500,
+    )
+
+
+class MultiTTSRequest(BaseModel):
+    """Request model for multi-speaker dialogue generation."""
+
+    turns: list[DialogueTurn] = Field(
+        ..., description="Ordered dialogue turns", min_length=1
+    )
+    max_new_tokens: int = Field(0, description="Maximum new tokens (0 for auto)")
+    chunk_length: int = Field(200, description="Chunk length for processing")
+    top_p: float = Field(0.7, description="Top-p sampling parameter", ge=0.0, le=1.0)
+    repetition_penalty: float = Field(
+        1.2, description="Repetition penalty", ge=1.0, le=2.0
+    )
+    temperature: float = Field(
+        0.7, description="Temperature for sampling", ge=0.1, le=2.0
+    )
+    seed: int = Field(0, description="Random seed (0 for random)")
+
+
 class TTSResponse(BaseModel):
     """Response model for TTS generation."""
 
