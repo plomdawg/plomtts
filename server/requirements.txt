@@ -5,8 +5,8 @@ fastapi
 uvicorn[standard]
 python-multipart
 
-# AI and TTS
-gradio-client
+# AI and TTS (Fish Audio S2 REST API speaks msgpack)
+msgpack
 
 # Audio processing
 pydub

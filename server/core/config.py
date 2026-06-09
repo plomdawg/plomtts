@@ -11,13 +11,13 @@ class Settings:
     HOST: str = os.getenv("PLOMTTS_HOST", "0.0.0.0")
     PORT: int = int(os.getenv("PLOMTTS_PORT", "8420"))
 
-    # Fish-speech configuration
+    # Fish Audio S2 configuration (REST /v1/tts server)
     FISH_SPEECH_HOST: str = os.getenv("FISH_SPEECH_HOST", "fish-speech")
-    FISH_SPEECH_PORT: int = int(os.getenv("FISH_SPEECH_PORT", "7860"))
+    FISH_SPEECH_PORT: int = int(os.getenv("FISH_SPEECH_PORT", "8080"))
 
     @property
     def fish_speech_url(self) -> str:
-        """Get the fish-speech API URL."""
+        """Get the Fish Audio S2 API base URL."""
         return f"http://{self.FISH_SPEECH_HOST}:{self.FISH_SPEECH_PORT}"
 
     # Voice storage
